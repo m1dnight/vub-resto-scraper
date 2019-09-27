@@ -44,16 +44,16 @@ COLOR_MAPPING = {
     'wok': '#6c4c42',  # brown
 }
 
+
 def color_for_dish(input_type):
     max_type = None
     max_dist = -1
-    for type,color in COLOR_MAPPING.items():
+    for type, color in COLOR_MAPPING.items():
         r = fuzz.ratio(type.lower(), input_type.lower())
         if r > max_dist:
             max_color = color
             max_dist = r
     return color
-
 
 
 def generate_json_dish(dish):
@@ -68,6 +68,7 @@ def generate_json_day(day):
     for dish in day.dishes_noon:
         json_dish = generate_json_dish(dish)
         noon.append(json_dish)
+    menu['noon'] = noon
 
     evening = []
     for dish in day.dishes_evening:
