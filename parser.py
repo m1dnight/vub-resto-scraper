@@ -10,21 +10,8 @@ from domain.menu import Menu
 ###########
 
 
-
-
 def parse_html(html_src):
     return html.fromstring(html_src)
-
-
-def write_url_to_file(url):
-    html = get_html(url)
-    with open('example.html', 'w') as text_file:
-        text_file.write(html)
-
-
-def read_html_from_file():
-    with open('example.html', 'r') as text_file:
-        return text_file.read()
 
 
 #############
@@ -140,7 +127,7 @@ def parse_location(menu_src):
 
 def parse_dish(dish_str):
     [type, name] = dish_str.lower().split(':')
-    return Dish(name.strip(), type.strip())
+    return Dish(name.strip().title(), type.strip().title())
 
 
 def parse_dishes_noon(day_src):
@@ -195,5 +182,3 @@ def parse_menus(src):
         result.append(parse_menu(menu))
 
     return result
-
-
