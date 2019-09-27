@@ -17,5 +17,6 @@ python main.py --version 1 --output /path/to/dir
 Obviously.
 
 ```
-docker run --rm -it -v /path/to/dir:/data m1dnight/vub-resto-v2:latest --version 1
+docker build -t vub-resto-v2 .
+docker run --rm -it -v /path/to/dir:/data vub-resto-v2 --version 1
 ```
