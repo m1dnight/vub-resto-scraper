@@ -1,9 +1,16 @@
-# Version 1 JSON:
+# Version 2 JSON:
 #
 # [
 #   {
 #     "date": "2019-09-23",
-#     "menus": [
+#     "noon": [
+#       {
+#         "dish": "Tomato soup",
+#         "color": "#fdb85b",
+#         "name": "Soup"
+#       }
+#     ]
+#     "evening": [
 #       {
 #         "dish": "Tomato soup",
 #         "color": "#fdb85b",
@@ -38,19 +45,18 @@ COLOR_MAPPING = {
 }
 
 def color_for_dish(input_type):
-    max_color = None
+    max_type = None
     max_dist = -1
     for type,color in COLOR_MAPPING.items():
         r = fuzz.ratio(type.lower(), input_type.lower())
         if r > max_dist:
             max_color = color
             max_dist = r
-    return max_color
+    return color
 
 
 
 def generate_json_dish(dish):
-    print(dish)
     dish_dict = {'dish': dish.name, 'name': dish.type, 'color': color_for_dish(dish.type)}
     return dish_dict
 
@@ -58,12 +64,17 @@ def generate_json_dish(dish):
 def generate_json_day(day):
     menu = {'date': day.date.strftime("%Y-%m-%d")}
 
-    dishes = []
+    noon = []
     for dish in day.dishes_noon:
         json_dish = generate_json_dish(dish)
-        dishes.append(json_dish)
+        noon.append(json_dish)
 
-    menu['menus'] = dishes
+    evening = []
+    for dish in day.dishes_evening:
+        json_dish = generate_json_dish(dish)
+        evening.append(json_dish)
+
+    menu['evening'] = evening
 
     return menu
 

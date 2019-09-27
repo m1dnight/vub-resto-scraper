@@ -1,4 +1,10 @@
+import argparse
+import errno
+import os
+
 import requests
+
+import generator_v2
 import parser
 import generator_v1
 import json
@@ -19,10 +25,12 @@ import json
 #  * Menu 1: Mac and Cheese
 #  * ...
 
+###############################################################################
 # Constants
 URL = 'https://student.vub.be/en/menu-vub-student-restaurant#menu-etterbeek-nl'
 
 
+###############################################################################
 # Helpers
 def determine_filename(menu):
     if menu.language == "en":
@@ -48,20 +56,47 @@ def get_html(url):
     return r.text
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='VUB Restaurant JSON generator.',
+                                     epilog="Scrapes the URL at {} for the restaurant data.".format(URL))
+
+    parser.add_argument("--output", dest="output", action="store", required=True)
+    parser.add_argument("--version", dest="version", action="store", required=False, type=int, choices=[1, 2])
+    args = parser.parse_args()
+
+    return args
+
+
+def mkdir(path):
+    import os
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+
+
+###############################################################################
+###############################################################################
 def main():
-    # Get the HTML and parse it.
+    args = parse_args()
+
+    # Parse the HTML
     h = parser.parse_html(get_html(URL))
     menus = parser.parse_menus(h)
 
-    # Print out the menus.
-    for menu in menus:
-        print(menu)
+    # Check and if need be, create the dir.
+    mkdir(args.output)
 
-    # Write the menus to a file.
     for menu in menus:
         filename = determine_filename(menu)
-        json_dict = generator_v1.generate_json_menu(menu)
-        write_json(filename, json_dict)
+        json_dict = None
+        if args.version == 1:
+            json_dict = generator_v1.generate_json_menu(menu)
+        elif args.version == 2:
+            json_dict = generator_v2.generate_json_menu(menu)
+
+        write_json(os.path.join(args.output, filename), json_dict)
 
 
 if __name__ == "__main__":
