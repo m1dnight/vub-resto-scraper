@@ -135,7 +135,7 @@ def parse_dishes_noon(day_src):
 
     dishes_noon = []
     for dish_noon_src in dishes_noon_src:
-        dish_str = dish_noon_src.text
+        dish_str = dish_noon_src.text_content()
         dish = parse_dish(dish_str)
         dishes_noon.append(dish)
 
@@ -147,7 +147,7 @@ def parse_dishes_evening(day_src):
 
     dishes_evening = []
     for dish_evening_src in dishes_evening_src:
-        dish_str = dish_evening_src.text
+        dish_str = dish_evening_src.text_content()
         dish = parse_dish(dish_str)
         dishes_evening.append(dish)
 
