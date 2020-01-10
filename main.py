@@ -27,7 +27,8 @@ import json
 
 ###############################################################################
 # Constants
-URL = 'https://student.vub.be/en/menu-vub-student-restaurant#menu-etterbeek-nl'
+URL_NL = 'https://student.vub.be/en/menu-vub-student-restaurant#menu-etterbeek-nl'
+URL_EN = 'https://student.vub.be/en/menu-vub-student-restaurant#menu-etterbeek-nl'
 
 
 ###############################################################################
@@ -52,13 +53,13 @@ def write_json(filename, json_dict):
 
 
 def get_html(url):
-    r = requests.get(URL)
+    r = requests.get(URL_NL)
     return r.text
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='VUB Restaurant JSON generator.',
-                                     epilog="Scrapes the URL at {} for the restaurant data.".format(URL))
+                                     epilog="Scrapes the URL at {} for the restaurant data.".format(URL_NL))
 
     parser.add_argument("--output", dest="output", action="store", required=True)
     parser.add_argument("--version", dest="version", action="store", required=False, type=int, choices=[1, 2])
@@ -82,7 +83,7 @@ def main():
     args = parse_args()
 
     # Parse the HTML
-    h = parser.parse_html(get_html(URL))
+    h = parser.parse_html(get_html(URL_NL))
     menus = parser.parse_menus(h)
 
     # Check and if need be, create the dir.
@@ -95,6 +96,7 @@ def main():
             json_dict = generator_v1.generate_json_menu(menu)
         elif args.version == 2:
             json_dict = generator_v2.generate_json_menu(menu)
+
 
         write_json(os.path.join(args.output, filename), json_dict)
 

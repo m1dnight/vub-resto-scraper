@@ -37,10 +37,11 @@ COLOR_MAPPING = {
     'wok': '#6c4c42',  # brown
 }
 
+
 def color_for_dish(input_type):
     max_color = None
     max_dist = -1
-    for type,color in COLOR_MAPPING.items():
+    for type, color in COLOR_MAPPING.items():
         r = fuzz.ratio(type.lower(), input_type.lower())
         if r > max_dist:
             max_color = color
@@ -48,30 +49,36 @@ def color_for_dish(input_type):
     return max_color
 
 
-
 def generate_json_dish(dish):
-    print(dish)
     dish_dict = {'dish': dish.name, 'name': dish.type, 'color': color_for_dish(dish.type)}
     return dish_dict
 
 
 def generate_json_day(day):
-    menu = {'date': day.date.strftime("%Y-%m-%d")}
+    try:
+        menu = {'date': day.date.strftime("%Y-%m-%d")}
 
-    dishes = []
-    for dish in day.dishes_noon:
-        json_dish = generate_json_dish(dish)
-        dishes.append(json_dish)
+        dishes = []
+        for dish in day.dishes_noon:
+            json_dish = generate_json_dish(dish)
+            dishes.append(json_dish)
 
-    menu['menus'] = dishes
+        menu['menus'] = dishes
 
-    return menu
+        return menu
+    except AttributeError:
+
+        return None
 
 
 def generate_json_menu(menu):
     day_dicts = []
     for day in menu.days:
-        day_dicts.append(generate_json_day(day))
+        # If during the parsing something went wrong, we just ignore it (results in partial information).
+        day_json = generate_json_day(day)
+
+        if day_json is not None:
+            day_dicts.append(generate_json_day(day))
 
     return day_dicts
 
