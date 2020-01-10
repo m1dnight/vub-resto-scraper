@@ -67,7 +67,6 @@ def generate_json_day(day):
 
         return menu
     except AttributeError:
-
         return None
 
 

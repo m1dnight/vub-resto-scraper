@@ -62,22 +62,25 @@ def generate_json_dish(dish):
 
 
 def generate_json_day(day):
-    menu = {'date': day.date.strftime("%Y-%m-%d")}
+    try:
+        menu = {'date': day.date.strftime("%Y-%m-%d")}
 
-    noon = []
-    for dish in day.dishes_noon:
-        json_dish = generate_json_dish(dish)
-        noon.append(json_dish)
-    menu['noon'] = noon
+        noon = []
+        for dish in day.dishes_noon:
+            json_dish = generate_json_dish(dish)
+            noon.append(json_dish)
+        menu['noon'] = noon
 
-    evening = []
-    for dish in day.dishes_evening:
-        json_dish = generate_json_dish(dish)
-        evening.append(json_dish)
+        evening = []
+        for dish in day.dishes_evening:
+            json_dish = generate_json_dish(dish)
+            evening.append(json_dish)
 
-    menu['evening'] = evening
+        menu['evening'] = evening
 
-    return menu
+        return menu
+    except AttributeError:
+        return None
 
 
 def generate_json_menu(menu):
