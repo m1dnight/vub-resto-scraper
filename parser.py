@@ -49,6 +49,29 @@ def day_date(src):
     return src.xpath('./p[1]')[0]
 
 
+def day_date_heading_switch(src):
+    """
+    Returns the date string for the given day.
+    But sometimes the VUB people switch around headings. For example:
+
+    Expected
+
+    13.01.2020
+    LUNCH
+
+    But then for some reason they type:
+
+    LUNCH
+    13.01.2020
+
+    So we have to change the div's xpath.
+
+    :param src:
+    :return:
+    """
+    return src.xpath('./p[2]')[0]
+
+
 def day_dishes_noon(src):
     """
     Returns the dishes served at noon for this given day.
@@ -90,13 +113,25 @@ def menu_title(menu_src):
     return title.text
 
 
+def is_valid_date(date_str):
+    regex = "\d+\.\d+.\d{4}"
+    return re.match(regex, date_str)
+
+
+def parse_date_str(date_str):
+    return datetime.datetime.strptime(date_str, "%d.%m.%Y")
+
+
 def parse_date(day_src):
     date_str = day_date(day_src).text.strip()
-    regex = "\d+\.\d+.\d{4}"
-    if not re.match(regex, date_str):
-        return None
+    if is_valid_date(date_str):
+        return parse_date_str(date_str)
+
+    date_str = day_date_heading_switch(day_src).text.strip()
+    if is_valid_date(date_str):
+        return parse_date_str(date_str)
     else:
-        return datetime.datetime.strptime(date_str, "%d.%m.%Y")
+        return None
 
 
 def parse_language(menu_src):
