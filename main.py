@@ -7,6 +7,7 @@ import requests
 import generator_v2
 import parser
 import generator_v1
+import history
 import json
 
 # The VUB restaurant publishes *four menus*. A Dutch and an English one for both Etterbeek and Jette.
@@ -62,6 +63,7 @@ def parse_args():
                                      epilog="Scrapes the URL at {} for the restaurant data.".format(URL_NL))
 
     parser.add_argument("--output", dest="output", action="store", required=True)
+    parser.add_argument("--history", dest="history", action="store", required=False)
     parser.add_argument("--version", dest="version", action="store", required=False, type=int, choices=[1, 2])
     args = parser.parse_args()
 
@@ -89,6 +91,7 @@ def main():
     # Check and if need be, create the dir.
     mkdir(args.output)
 
+
     for menu in menus:
         filename = determine_filename(menu)
         json_dict = None
@@ -99,6 +102,10 @@ def main():
 
 
         write_json(os.path.join(args.output, filename), json_dict)
+
+    if args.history is not None:
+        mkdir(args.history)
+        history.history(args.output, args.history)
 
 
 if __name__ == "__main__":

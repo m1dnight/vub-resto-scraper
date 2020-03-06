@@ -9,7 +9,7 @@ In version 1 the evening menus are ignored, and the format for the android app i
 In version 2 the evening menu is scraped, and the json has a different format. See `generator_vx.py` for detais.
 
 ```
-python main.py --version 1 --output /path/to/dir
+python main.py --version 1 --output /path/to/dir --backup /previous/menus
 ```
 
 # Docker
@@ -18,5 +18,5 @@ Obviously.
 
 ```
 docker build -t vub-resto-v2 .
-docker run --rm -it -v /path/to/dir:/data vub-resto-v2 --version 1
+docker run --rm -it -v /path/to/dir:/data vub-resto-v2 --version 1 --backup /previous/menus
 ```
