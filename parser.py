@@ -119,7 +119,9 @@ def is_valid_date(date_str):
 
 
 def parse_date_str(date_str):
-    return datetime.datetime.strptime(date_str, "%d.%m.%Y")
+    # Strip the date string from the intput string.
+    date_str_clean = re.match("\d+\.\d+.\d{4}", date_str).group(0)
+    return datetime.datetime.strptime(date_str_clean, "%d.%m.%Y")
 
 
 def parse_date(day_src):
