@@ -7,7 +7,8 @@ import requests
 import generator_v2
 import parser
 import generator_v1
-import history
+import history_v1
+import history_v2
 import json
 
 # The VUB restaurant publishes *four menus*. A Dutch and an English one for both Etterbeek and Jette.
@@ -100,12 +101,14 @@ def main():
         elif args.version == 2:
             json_dict = generator_v2.generate_json_menu(menu)
 
-
         write_json(os.path.join(args.output, filename), json_dict)
 
     if args.history is not None:
         mkdir(args.history)
-        history.history(args.output, args.history)
+        if args.version == 1:
+            history_v1.history(args.output, args.history)
+        elif args.version == 2:
+            history_v2.history(args.output, args.history)
 
 
 if __name__ == "__main__":
