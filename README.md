@@ -18,5 +18,5 @@ Obviously.
 
 ```
 docker build -t vub-resto-v2 .
-docker run --rm -it -v /path/to/dir:/data vub-resto-v2 --version 1 --backup /previous/menus
+docker run --rm -it -v /path/to/dir:/data vub-resto-v2 --version 1 --backup
 ```

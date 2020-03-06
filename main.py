@@ -64,10 +64,11 @@ def parse_args():
                                      epilog="Scrapes the URL at {} for the restaurant data.".format(URL_NL))
 
     parser.add_argument("--output", dest="output", action="store", required=True)
-    parser.add_argument("--history", dest="history", action="store", required=False)
+    parser.add_argument("-t", "--history", dest="history", action="store_true", help="Keep old values")
     parser.add_argument("--version", dest="version", action="store", required=False, type=int, choices=[1, 2])
     args = parser.parse_args()
 
+    args.history_path = os.path.join(args.output, "history")
     return args
 
 
@@ -92,6 +93,8 @@ def main():
     # Check and if need be, create the dir.
     mkdir(args.output)
 
+    if args.history:
+        mkdir(args.history_path)
 
     for menu in menus:
         filename = determine_filename(menu)
@@ -103,12 +106,11 @@ def main():
 
         write_json(os.path.join(args.output, filename), json_dict)
 
-    if args.history is not None:
-        mkdir(args.history)
+    if args.history:
         if args.version == 1:
-            history_v1.history(args.output, args.history)
+            history_v1.history(args.output, args.history_path)
         elif args.version == 2:
-            history_v2.history(args.output, args.history)
+            history_v2.history(args.output, args.history_path)
 
 
 if __name__ == "__main__":

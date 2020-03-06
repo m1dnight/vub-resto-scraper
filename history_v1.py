@@ -7,7 +7,6 @@ FILENAMES = ["jette.en.json", "jette.nl.json", "etterbeek.en.json", "etterbeek.n
 
 
 def history(directory, history):
-
     for filename in FILENAMES:
         latest_path = os.path.join(directory, filename)
         history_path = os.path.join(history, filename)
