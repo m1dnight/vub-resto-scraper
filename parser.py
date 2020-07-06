@@ -26,6 +26,8 @@ def get_menus(src):
     :param html:
     :return: Returns a list of html tree items.
     """
+    # / html / body / div[4] / div / div / div[1] / section[2] / div / div
+    # / html / body / div[4] / div / div / div[1] / section[3] / div / div
     menus = src.xpath('/html/body/div[3]/div/div/div')
     return menus
 
@@ -36,7 +38,8 @@ def menu_days(src):
     :param src:
     :return:
     """
-    days = src.xpath('./section[position() > 1 and position() < 7]/div/div')
+    days = src.xpath('./section[position() > 1 and position() < 8]/div/div')
+    days_str = list(map(lambda d: html.tostring(d), days))
     return days
 
 
@@ -46,7 +49,7 @@ def day_date(src):
     :param src:
     :return:
     """
-    return src.xpath('./p[1]')[0]
+    return src.xpath('./h4[1]')[0]
 
 
 def day_date_heading_switch(src):
@@ -113,9 +116,23 @@ def menu_title(menu_src):
     return title.text
 
 
+# 6/7/2020
 def is_valid_date(date_str):
     regex = "\d+\.\d+.\d{4}"
     return re.match(regex, date_str)
+
+
+# Woensdag 7 September
+def is_valid_date_2(date_str):
+    regex = "(maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag)\s(\d+)\s(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)"
+    return re.match(regex, date_str.lower())
+
+
+# Wednesday September 7
+def is_valid_date_3(date_str):
+    regex = "(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s(january|february|march|april|may|june|july|august|september|october|november|december)\s(\d+)"
+    result = re.match(regex, date_str.lower())
+    return result
 
 
 def parse_date_str(date_str):
@@ -124,16 +141,86 @@ def parse_date_str(date_str):
     return datetime.datetime.strptime(date_str_clean, "%d.%m.%Y")
 
 
-def parse_date(day_src):
-    date_str = day_date(day_src).text.strip()
-    if is_valid_date(date_str):
-        return parse_date_str(date_str)
+def parse_date_str_2(date_str):
+    # Strip the date string from the intput string.
+    date_str_clean = re.match(
+        "(maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag)\s(\d+)\s(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)",
+        date_str.lower())
 
-    date_str = day_date_heading_switch(day_src).text.strip()
-    if is_valid_date(date_str):
-        return parse_date_str(date_str)
-    else:
+    months = {
+        "januari": 1,
+        "februari": 2,
+        "maart": 3,
+        "april": 4,
+        "mei": 5,
+        "juni": 6,
+        "juli": 7,
+        "augustus": 8,
+        "september": 9,
+        "oktober": 10,
+        "november": 11,
+        "december": 12,
+    }
+    day = date_str_clean.group(2)
+    monthname = date_str_clean.group(3)
+    year = datetime.datetime.now().year
+
+    result = datetime.datetime.strptime("{}.{}.{}".format(day, months[monthname], year), "%d.%m.%Y")
+    return result
+
+
+def parse_date_str_3(date_str):
+    # Strip the date string from the intput string.
+    date_str_clean = re.match(
+        "(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s(january|february|march|april|may|june|july|august|september|october|november|december)\s(\d+)",
+        date_str.lower())
+
+    months = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12,
+    }
+    day = date_str_clean.group(3)
+    monthname = date_str_clean.group(2)
+    year = datetime.datetime.now().year
+
+    result = datetime.datetime.strptime("{}.{}.{}".format(day, months[monthname], year), "%d.%m.%Y")
+    return result
+
+
+def parse_date(day_src):
+    try:
+        date_str = day_date(day_src).text.strip()
+        if is_valid_date(date_str):
+            return parse_date_str(date_str)
+
+        if is_valid_date_2(date_str):
+            return parse_date_str_2(date_str)
+
+        if is_valid_date_3(date_str):
+            return parse_date_str_3(date_str)
+
+        date_str = day_date_heading_switch(day_src).text.strip()
+        if is_valid_date(date_str):
+            return parse_date_str(date_str)
         return None
+    except:
+        return None
+
+
+def parse_date_2(day_src):
+    date_str = day_date(day_src).text.strip()
+    if is_valid_date_2(date_str):
+        return parse_date_str_2(date_str)
 
 
 def parse_language(menu_src):
@@ -193,10 +280,13 @@ def parse_dishes_evening(day_src):
 
 def parse_day(day_src):
     date = parse_date(day_src)
-    dishes_noon = parse_dishes_noon(day_src)
-    dishes_evening = parse_dishes_evening(day_src)
+    if date is None:
+        return None
+    else:
+        dishes_noon = parse_dishes_noon(day_src)
+        dishes_evening = parse_dishes_evening(day_src)
 
-    return Day(dishes_noon, dishes_evening, date)
+        return Day(dishes_noon, dishes_evening, date)
 
 
 def parse_menu(menu_src):
@@ -205,13 +295,17 @@ def parse_menu(menu_src):
 
     days = []
     for day_src in menu_days(menu_src):
+        str = html.tostring(day_src)
         day = parse_day(day_src)
-        days.append(day)
+        if day is not None:
+            days.append(day)
 
     return Menu(days, lang, location)
 
 
 def parse_menus(src):
+    # A menu is a menu for a location + a language.
+    # I.e., etterbeek english, etterbeek dutch, jette dutch, and jette english.
     menus = get_menus(src)
     result = []
 
