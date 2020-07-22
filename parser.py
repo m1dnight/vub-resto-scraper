@@ -134,6 +134,12 @@ def is_valid_date_3(date_str):
     result = re.match(regex, date_str.lower())
     return result
 
+# Wednesday 7 September
+def is_valid_date_4(date_str):
+    regex = "(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s(\d+)\s(january|february|march|april|may|june|july|august|september|october|november|december)"
+    result = re.match(regex, date_str.lower())
+    return result
+
 
 def parse_date_str(date_str):
     # Strip the date string from the intput string.
@@ -197,6 +203,34 @@ def parse_date_str_3(date_str):
     return result
 
 
+def parse_date_str_4(date_str):
+    # Strip the date string from the intput string.
+    date_str_clean = re.match(
+        "(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s(\d+)\s(january|february|march|april|may|june|july|august|september|october|november|december)",
+        date_str.lower())
+
+    months = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12,
+    }
+    day = date_str_clean.group(2)
+    monthname = date_str_clean.group(3)
+    year = datetime.datetime.now().year
+
+    result = datetime.datetime.strptime("{}.{}.{}".format(day, months[monthname], year), "%d.%m.%Y")
+    return result
+
+
 def parse_date(day_src):
     try:
         date_str = day_date(day_src).text.strip()
@@ -208,6 +242,9 @@ def parse_date(day_src):
 
         if is_valid_date_3(date_str):
             return parse_date_str_3(date_str)
+
+        if is_valid_date_4(date_str):
+            return parse_date_str_4(date_str)
 
         date_str = day_date_heading_switch(day_src).text.strip()
         if is_valid_date(date_str):
