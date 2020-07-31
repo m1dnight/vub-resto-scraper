@@ -38,7 +38,7 @@ def menu_days(src):
     :param src:
     :return:
     """
-    days = src.xpath('./section[position() > 1 and position() < 8]/div/div')
+    days = src.xpath('./section[position() > 1 and position() < 9]/div/div')
     days_str = list(map(lambda d: html.tostring(d), days))
     return days
 
