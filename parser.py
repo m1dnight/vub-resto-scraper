@@ -112,7 +112,7 @@ def menu_title(menu_src):
     :param menu_src: Parsed HTML tree.
     :return: Returns a string containing the title of the menu.
     """
-    title = menu_src.xpath('./section[1]/div[1]/div[1]/h2')[0]
+    title = menu_src.xpath('./section[1]/div[1]/div[2]/h2')[0]
     return title.text
 
 
