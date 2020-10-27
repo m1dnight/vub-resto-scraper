@@ -287,8 +287,11 @@ def parse_location(menu_src):
 
 
 def parse_dish(dish_str):
-    [type, name] = dish_str.lower().split(':')
-    return Dish(name.strip().title(), type.strip().title())
+    try:
+        [type, name] = dish_str.lower().split(':')
+        return Dish(name.strip().title(), type.strip().title())
+    except ValueError: # In case the format is not "Dish Type : Name"
+        return None
 
 
 def parse_dishes_noon(day_src):
@@ -310,7 +313,8 @@ def parse_dishes_evening(day_src):
     for dish_evening_src in dishes_evening_src:
         dish_str = dish_evening_src.text_content()
         dish = parse_dish(dish_str)
-        dishes_evening.append(dish)
+        if dish is not None:
+            dishes_evening.append(dish)
 
     return dishes_evening
 
