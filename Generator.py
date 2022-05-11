@@ -38,7 +38,7 @@ class Generator:
 
     @staticmethod
     def generate_dish(dish: ParsedItem):
-        dict = {'dish': dish['name'], 'color': Generator.generate_color(dish['type']), 'name': dish['type']}
+        dict = {'dish': dish['name'], 'color': Generator.generate_color(dish['type']), 'name': dish['type'].capitalize()}
         return dict
 
     @staticmethod
