@@ -1,67 +1,16 @@
+# Press the green button i  n the gutter to run the script.
 import argparse
 import errno
+import json
 import os
 
-import requests
-
-import generator_v2
-import parser
-import generator_v1
-import history_v1
-import history_v2
-import json
-
-# The VUB restaurant publishes *four menus*. A Dutch and an English one for both Etterbeek and Jette.
-#
-#  * Weekmenu Jette
-#  * Week menu Jette
-#  * Weekmenu Etterbeek
-#  * Week menu Etterbeek
-#
-#
-# Each menu has *five days*: monday to friday.
-#
-# Each day typically 5 has dishes. For example:
-#
-#  * Soup: Tomatosoup
-#  * Menu 1: Mac and Cheese
-#  * ...
-
-###############################################################################
-# Constants
-URL_NL = 'https://student.vub.be/en/menu-vub-student-restaurant#menu-etterbeek-nl'
-URL_EN = 'https://student.vub.be/en/menu-vub-student-restaurant#menu-etterbeek-nl'
-
-
-###############################################################################
-# Helpers
-def determine_filename(menu):
-    if menu.language == "en":
-        if menu.location == "etterbeek":
-            destination = "etterbeek.en.json"
-        else:
-            destination = "jette.en.json"
-    else:
-        if menu.location == "jette":
-            destination = "jette.nl.json"
-        else:
-            destination = "etterbeek.nl.json"
-    return destination
-
-
-def write_json(filename, json_dict):
-    with open(filename, 'w', encoding='utf-8') as f:
-        json.dump(json_dict, f, ensure_ascii=False, indent=2)
-
-
-def get_html(url):
-    r = requests.get(URL_NL)
-    return r.text
+from Generator import Generator
+from Scraper import Scraper
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='VUB Restaurant JSON generator.',
-                                     epilog="Scrapes the URL at {} for the restaurant data.".format(URL_NL))
+                                     epilog="Scrapes the VUB website for the restaurant data.")
 
     parser.add_argument("--output", dest="output", action="store", required=True)
     parser.add_argument("-t", "--history", dest="history", action="store_true", help="Keep old values")
@@ -72,6 +21,42 @@ def parse_args():
     return args
 
 
+def read_file_to_json(file):
+    if not os.path.exists(file):
+        return {}
+    else:
+        with open(file) as f:
+            content = json.load(f)
+            return content
+
+
+def history(directory, history):
+    for filename in ["jette.en.json", "jette.nl.json", "etterbeek.en.json", "etterbeek.nl.json"]:
+        latest_path = os.path.join(directory, filename)
+        history_path = os.path.join(history, filename)
+
+        latest_content = read_file_to_json(latest_path)
+        history_content = read_file_to_json(history_path)
+
+        for day in latest_content:
+            key = day["date"]
+            val = day["menus"]
+            history_content[key] = val
+
+        write_json(history_content, history_path)
+
+
+def ensure_directories(args):
+    mkdir(args.output)
+    if args.history:
+        mkdir(args.history_path)
+
+
+def write_json(json_dict, filename):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(json_dict, f, ensure_ascii=False, indent=2)
+
+
 def mkdir(path):
     import os
     try:
@@ -80,37 +65,29 @@ def mkdir(path):
         if e.errno != errno.EEXIST:
             raise
 
-
-###############################################################################
-###############################################################################
 def main():
     args = parse_args()
+    ensure_directories(args)
 
-    # Parse the HTML
-    h = parser.parse_html(get_html(URL_NL))
-    menus = parser.parse_menus(h)
+    scraper = Scraper()
 
-    # Check and if need be, create the dir.
-    mkdir(args.output)
+    jette_nl = Generator.generate(scraper.get_restaurant(Scraper.jette_nl))
+    write_json(jette_nl, os.path.join(args.output, "jette_nl.json"))
+    
+    jette_en = Generator.generate(scraper.get_restaurant(Scraper.jette_en))
+    write_json(jette_en, os.path.join(args.output, "jette_en.json"))
+    
+    etterbeek_nl = Generator.generate(scraper.get_restaurant(Scraper.etterbeek_nl))
+    write_json(etterbeek_nl, os.path.join(args.output, "etterbeek_nl.json"))
 
-    if args.history:
-        mkdir(args.history_path)
-
-    for menu in menus:
-        filename = determine_filename(menu)
-        json_dict = None
-        if args.version == 1:
-            json_dict = generator_v1.generate_json_menu(menu)
-        elif args.version == 2:
-            json_dict = generator_v2.generate_json_menu(menu)
-
-        write_json(os.path.join(args.output, filename), json_dict)
+    etterbeek_en = Generator.generate(scraper.get_restaurant(Scraper.etterbeek_en))
+    write_json(etterbeek_en, os.path.join(args.output, "etterbeek_en.json"))
 
     if args.history:
         if args.version == 1:
-            history_v1.history(args.output, args.history_path)
+            history(args.output, args.history_path)
         elif args.version == 2:
-            history_v2.history(args.output, args.history_path)
+            history(args.output, args.history_path)
 
 
 if __name__ == "__main__":

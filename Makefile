@@ -1,5 +1,5 @@
 DOCKER_TAG := latest
-DOCKER_IMG := m1dnight/vub-resto-v2
+DOCKER_IMG := m1dnight/vub-resto-v3
 
 .PHONY: build
 

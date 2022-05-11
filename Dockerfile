@@ -1,12 +1,8 @@
 # Example run to put the files in /host/path/dir on the host:
-# docker run -it --rm -v /host/path/dir:/data m1dnight/vub-resto /data/
+# docker run -it -v /tmp/resto:/data --rm m1dnight/vub-resto-v3 --history --version 1
 
-FROM python:3.5
+FROM python:3.10
 LABEL maintainer "Christophe De Troyer <christophe@call-cc.be>"
-
-# Install dependencies.
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends git ca-certificates python-levenshtein && rm -rf /var/lib/apt/lists/*
 
 # Get project
 ADD . /app
