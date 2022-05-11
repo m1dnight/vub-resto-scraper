@@ -72,16 +72,16 @@ def main():
     scraper = Scraper()
 
     jette_nl = Generator.generate(scraper.get_restaurant(Scraper.jette_nl))
-    write_json(jette_nl, os.path.join(args.output, "jette_nl.json"))
+    write_json(jette_nl, os.path.join(args.output, "jette.nl.json"))
     
     jette_en = Generator.generate(scraper.get_restaurant(Scraper.jette_en))
-    write_json(jette_en, os.path.join(args.output, "jette_en.json"))
+    write_json(jette_en, os.path.join(args.output, "jette.en.json"))
     
     etterbeek_nl = Generator.generate(scraper.get_restaurant(Scraper.etterbeek_nl))
-    write_json(etterbeek_nl, os.path.join(args.output, "etterbeek_nl.json"))
+    write_json(etterbeek_nl, os.path.join(args.output, "etterbeek.nl.json"))
 
     etterbeek_en = Generator.generate(scraper.get_restaurant(Scraper.etterbeek_en))
-    write_json(etterbeek_en, os.path.join(args.output, "etterbeek_en.json"))
+    write_json(etterbeek_en, os.path.join(args.output, "etterbeek.en.json"))
 
     if args.history:
         if args.version == 1:
