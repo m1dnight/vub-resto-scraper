@@ -105,7 +105,7 @@ class Scraper:
     def get_menu_raw(self, sourceId):
         self.get_cookie()
         headers = {"Accept": "application/json", "Accept-Encoding": "gzip", "content-type": "application/json"}
-        data = {'channelId': 7142, 'sourceIds': [sourceId], 'size': 9999, 'offset': 0}
+        data = {'channelId': 8476, 'sourceIds': [sourceId], 'size': 9999, 'offset': 0}
         r = requests.post("https://wearestudent.vub.be/api/timeline", cookies=self.cookies, headers=headers, data=json.dumps(data))
         if 200 <= r.status_code < 300:
             result = r.json()
