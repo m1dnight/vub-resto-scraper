@@ -52,7 +52,7 @@ class Scraper:
 
     @staticmethod
     def item_name(item: str) -> str:
-        [_, name] = item.split(':')
+        [_, name] = item.split(':', 1)
         name = name.strip()
         return name
 
