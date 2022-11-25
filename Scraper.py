@@ -31,28 +31,31 @@ class Scraper:
 
     @staticmethod
     def item_type(item: str) -> str:
-        if item.lower().startswith("soup:") or item.lower().startswith("soep:"):
+        if item.lower().startswith("soup") or item.lower().startswith("soep"):
             return "soup"
-        elif item.lower().startswith("menu 1:"):
+        elif item.lower().startswith("menu 1"):
             return "menu 1"
-        elif item.lower().startswith("menu 2:"):
+        elif item.lower().startswith("menu 2"):
             return "menu 2"
-        elif item.lower().startswith("fish:"):
+        elif item.lower().startswith("fish"):
             return "fish"
-        elif item.lower().startswith("vis:"):
+        elif item.lower().startswith("vis"):
             return "fish"
-        elif item.lower().startswith("veggie:"):
+        elif item.lower().startswith("veggie"):
             return "veggie"
-        elif item.lower().startswith("pasta:"):
+        elif item.lower().startswith("pasta"):
             return "pasta"
-        elif item.lower().startswith("wok:"):
+        elif item.lower().startswith("wok"):
             return "wok"
         else:
             return "none"
 
     @staticmethod
     def item_name(item: str) -> str:
-        [_, name] = item.split(':', 1)
+        ch = ':'
+        if ':' not in item:
+            ch = ' '
+        [_, name] = item.split(ch, 1)
         name = name.strip()
         return name
 
