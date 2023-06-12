@@ -3,6 +3,7 @@ import json
 import re
 from datetime import datetime
 from typing import TypedDict, List, Union
+from bs4 import BeautifulSoup
 
 import requests as requests
 from requests.cookies import RequestsCookieJar
@@ -95,6 +96,12 @@ class Scraper:
         items = descr.split('\n')
         items = [Scraper.parse_item(item) for item in items]
         items = [item for item in items if item is not None]
+
+        # If they messed up their newline behaviour, let's try parsing the HTML instead
+        if len(items) < 2:
+            content = BeautifulSoup(raw_day['content'])
+            content = content.find_all("li")
+            items = [Scraper.parse_item(item.string) for item in content]
         return items
 
     @staticmethod
@@ -109,6 +116,7 @@ class Scraper:
         r = requests.post("https://wearestudent.vub.be/api/timeline", cookies=self.cookies, headers=headers, data=json.dumps(data))
         if 200 <= r.status_code < 300:
             result = r.json()
+            print(result)
             items = result['data']['articles']
             return items
         else:
