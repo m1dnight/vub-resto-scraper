@@ -119,7 +119,6 @@ class Scraper:
         r = requests.post("https://wearestudent.vub.be/api/timeline", cookies=self.cookies, headers=headers, data=json.dumps(data))
         if 200 <= r.status_code < 300:
             result = r.json()
-            print(result)
             items = result['data']['articles']
             return items
         else:
