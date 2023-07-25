@@ -104,7 +104,7 @@ class Scraper:
         if len(items) < 2:
             content = BeautifulSoup(raw_day['content'])
             content = content.find_all("li")
-            items = [Scraper.parse_item(item.string) for item in content]
+            items = [Scraper.parse_item(str(item.string)) for item in content]
         return items
 
     @staticmethod
