@@ -98,13 +98,13 @@ class Scraper:
         descr = Scraper.sanitize_str(raw_day['descr'])
         items = descr.split('\n')
         items = [Scraper.parse_item(item) for item in items]
-        items = [item for item in items if item is not None]
 
         # If they messed up their newline behaviour, let's try parsing the HTML instead
         if len(items) < 2:
             content = BeautifulSoup(raw_day['content'])
             content = content.find_all("li")
-            items = [Scraper.parse_item(item.string) for item in content]
+            items = [Scraper.parse_item(str(item.string)) for item in content]
+        items = [item for item in items if item is not None]
         return items
 
     @staticmethod
