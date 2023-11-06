@@ -32,21 +32,22 @@ class Scraper:
 
     @staticmethod
     def item_type(item: str) -> str:
-        if item.lower().startswith("soup") or item.lower().startswith("soep"):
+        item = item.lower().strip("•").strip()
+        if item.startswith("soup") or item.startswith("soep"):
             return "soup"
-        elif item.lower().startswith("menu 1"):
+        elif item.startswith("menu 1"):
             return "menu 1"
-        elif item.lower().startswith("menu 2"):
+        elif item.startswith("menu 2"):
             return "menu 2"
-        elif item.lower().startswith("fish"):
+        elif item.startswith("fish"):
             return "fish"
-        elif item.lower().startswith("vis"):
+        elif item.startswith("vis"):
             return "fish"
-        elif item.lower().startswith("veggie"):
+        elif item.startswith("veggie"):
             return "veggie"
-        elif item.lower().startswith("pasta"):
+        elif item.startswith("pasta"):
             return "pasta"
-        elif item.lower().startswith("wok"):
+        elif item.startswith("wok"):
             return "wok"
         else:
             return "none"
@@ -75,7 +76,7 @@ class Scraper:
 
     @staticmethod
     def possible_item(item: str) -> bool:
-        item = item.lower()
+        item = item.lower().strip("•").strip()
         for prefix in ["soup", "soep", "wok", "fish", "vis", "veggie", "menu 1", "menu 2", "pasta", "wok"]:
             if item.startswith(prefix):
                 return True
