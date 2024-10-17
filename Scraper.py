@@ -28,7 +28,7 @@ class Scraper:
 
     @staticmethod
     def sanitize_str(to_sanitize: str) -> str:
-        return to_sanitize.replace('\xa0', ' ').replace('\n\t', '\n')
+        return to_sanitize.replace('\xa0', ' ').replace('\n\t', '\n').replace('\u200b', '')
 
     @staticmethod
     def item_type(item: str) -> str:
