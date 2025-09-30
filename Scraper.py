@@ -90,22 +90,45 @@ class Scraper:
             type = Scraper.item_type(item)
             name = Scraper.item_name(item)
             return {'type': type, 'name': name}
+        elif item.strip() != None:
+            return {'type': "unknown", 'name': item} 
         else:
             # print("Invalid item: {}".format(item))
             return None
 
     @staticmethod
     def parse_menu(raw_day: RawDay) -> ParsedMenu:
-        descr = Scraper.sanitize_str(raw_day['descr'])
-        items = descr.split('\n')
-        items = [Scraper.parse_item(item) for item in items]
 
-        # If they messed up their newline behaviour, let's try parsing the HTML instead
-        if len(items) < 2:
-            content = BeautifulSoup(raw_day['content'])
+        sanitized = Scraper.sanitize_str(raw_day['content'])
+
+        content = BeautifulSoup(sanitized, features="html.parser")
+        content = content.find("table")
+
+        if not content:   #Fallback for JETTE!
+            content = BeautifulSoup(sanitized, features="html.parser")
             content = content.find_all("li")
             items = [Scraper.parse_item(str(item.string)) for item in content]
-        items = [item for item in items if item is not None]
+            items = [item for item in items if item is not None]
+
+        else:       #Etterbeek
+        
+            #Anti-span filter
+            for span_tag in content.findAll('span'):
+                span_tag.unwrap()
+
+            items = []
+
+            rows = content.find_all("tr")
+            for row in rows:
+                goodstuff = row.select("td")[1]
+                if goodstuff.string:
+                    goodstuff = goodstuff.string.strip()
+                elif goodstuff.contents:  #FUCKING IDIOTS
+                    goodstuff = "".join(goodstuff.contents).strip()
+                else:
+                    print("ERROR:", goodstuff)
+                items.append(Scraper.parse_item(goodstuff))
+
         return items
 
     @staticmethod
