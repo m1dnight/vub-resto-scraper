@@ -124,7 +124,7 @@ class Scraper:
                 if goodstuff.string:
                     goodstuff = goodstuff.string.strip()
                 elif goodstuff.contents:  #FUCKING IDIOTS
-                    goodstuff = "".join(goodstuff.contents).strip()
+                    goodstuff = "".join(goodstuff.get_text()).strip()
                 else:
                     print("ERROR:", goodstuff)
                 items.append(Scraper.parse_item(goodstuff))
