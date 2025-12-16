@@ -131,36 +131,16 @@ class Scraper:
 
     @staticmethod
     def parse_menu(raw_day: RawDay) -> list[ParsedMenu]:
+        descr = Scraper.sanitize_str(raw_day['descr'])
+        items = descr.split('\n')
+        items = [Scraper.parse_item(item) for item in items]
 
-        sanitized = Scraper.sanitize_str(raw_day['content'])
-
-        content = BeautifulSoup(sanitized, features="html.parser")
-        content = content.find("table")
-
-        if not content:   #Fallback for JETTE!
-            content = BeautifulSoup(sanitized, features="html.parser")
+        # If they messed up their newline behaviour, let's try parsing the HTML instead
+        if len(items) < 2:
+            content = BeautifulSoup(raw_day['content'], features='html.parser')
             content = content.find_all("li")
             items = [Scraper.parse_item(str(item.string)) for item in content]
-            items = [item for item in items if item is not None]
-
-        else:       #Etterbeek
-        
-            #Anti-span filter
-            for span_tag in content.findAll('span'):
-                span_tag.unwrap()
-
-            items = []
-
-            rows = content.find_all("tr")
-            for row in rows:
-                goodstuff = row.select("td")[1]
-                if goodstuff.string:
-                    goodstuff = goodstuff.string.strip()
-                elif goodstuff.contents:  #FUCKING IDIOTS
-                    goodstuff = "".join(goodstuff.get_text()).strip()
-                else:
-                    print("ERROR:", goodstuff)
-                items.append(Scraper.parse_item(str(goodstuff)))
+        items = [item for item in items if item is not None]
 
         return items
 
