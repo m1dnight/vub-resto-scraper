@@ -127,7 +127,7 @@ class Scraper:
                     goodstuff = "".join(goodstuff.get_text()).strip()
                 else:
                     print("ERROR:", goodstuff)
-                items.append(Scraper.parse_item(goodstuff))
+                items.append(Scraper.parse_item(str(goodstuff)))
 
         return items
 
