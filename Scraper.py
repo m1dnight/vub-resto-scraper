@@ -1,19 +1,52 @@
 import datetime
+from enum import Enum
 import json
 import re
-from datetime import datetime
-from typing import TypedDict, List, Union
+from datetime import datetime, date
+from typing import List, Union
 from bs4 import BeautifulSoup
 
 import requests as requests
 from requests.cookies import RequestsCookieJar
 
-RawDay = TypedDict('RawDay', {'id': str, 'descr': str, 'meta': TypedDict('MetaDict', {'start': str, 'end': str})})
-ParsedItem = TypedDict('ParsedItem', {'type': str, 'name': str})
-ParsedMenu = list[ParsedItem]
-ParsedDay = TypedDict('ParsedDay', {'day': datetime, 'menu': ParsedMenu})
-ParsedRestaurant = list[ParsedDay]
+from pydantic import BaseModel
 
+class RawDayMeta(BaseModel):
+    start: str
+    end: str
+
+class RawDay(BaseModel):
+    id: str
+    descr: str
+    meta: RawDayMeta
+
+class ParsedMenuName(str, Enum):
+    closed = "closed"
+    menu1 = "menu 1"
+    menu2 = "menu 2"
+    soup = "soup"
+    fish = "fish"
+    wok = "wok"
+    pasta = "pasta"
+    unknown = "unknown"
+
+    @staticmethod
+    def from_str(s: str):
+        try:
+            return ParsedMenuName(s)
+        except:
+            return ParsedMenuName.unknown
+
+class ParsedMenu(BaseModel):
+    type: ParsedMenuName
+    name: str
+
+class ParsedDay(BaseModel):
+    day: date
+    menu: list[ParsedMenu]
+
+class ParsedRestaurant(list[ParsedDay]):
+    pass
 
 class Scraper:
     etterbeek_nl = 124364829
@@ -62,7 +95,7 @@ class Scraper:
         return name
 
     @staticmethod
-    def menu_date(menu: RawDay) -> datetime:
+    def menu_date(menu: RawDay) -> str:
         date_str = menu['meta']['start']
 
         if re.match("^\d\d\d\d-\d\d-\d\d$", date_str):
@@ -83,21 +116,21 @@ class Scraper:
         return False
 
     @staticmethod
-    def parse_item(item: str) -> Union[None, ParsedItem]:
+    def parse_item(item: str) -> Union[None, ParsedMenu]:
         if re.match(".*restaurant.*gesloten.*", item, flags=re.IGNORECASE):
-            return {'type': "closed", 'name': 'restaurant closed'}
+            return ParsedMenu(type= "closed", name = 'restaurant closed')
         elif Scraper.possible_item(item):
             type = Scraper.item_type(item)
             name = Scraper.item_name(item)
-            return {'type': type, 'name': name}
+            return ParsedMenu(type = ParsedMenuName.from_str(type), name = name)
         elif item.strip() != None:
-            return {'type': "unknown", 'name': item} 
+            return ParsedMenu(type= "unknown", name = item)
         else:
             # print("Invalid item: {}".format(item))
             return None
 
     @staticmethod
-    def parse_menu(raw_day: RawDay) -> ParsedMenu:
+    def parse_menu(raw_day: RawDay) -> list[ParsedMenu]:
 
         sanitized = Scraper.sanitize_str(raw_day['content'])
 
@@ -133,8 +166,8 @@ class Scraper:
 
     @staticmethod
     def parse_restaurant(menu: List[RawDay]) -> ParsedRestaurant:
-        parsed = [{'day': Scraper.menu_date(day), 'menu': Scraper.parse_menu(day)} for day in menu]
-        return parsed
+        parsed = [ParsedDay(day= Scraper.menu_date(day), menu = Scraper.parse_menu(day)) for day in menu]
+        return ParsedRestaurant(parsed)
 
     def get_menu_raw(self, sourceId):
         self.get_cookie()

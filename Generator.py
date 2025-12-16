@@ -1,4 +1,4 @@
-from Scraper import ParsedRestaurant, ParsedDay, ParsedItem
+from Scraper import ParsedRestaurant, ParsedDay, ParsedMenu
 
 
 class Generator:
@@ -32,13 +32,13 @@ class Generator:
 
     @staticmethod
     def generate_day(day: ParsedDay):
-        date_key = day['day'].strftime("%Y-%m-%d")
-        dishes = [Generator.generate_dish(dish) for dish in day['menu']]
+        date_key = day.day.strftime("%Y-%m-%d")
+        dishes = [Generator.generate_dish(dish) for dish in day.menu]
         return {"date": date_key, "menus": dishes}
 
     @staticmethod
-    def generate_dish(dish: ParsedItem):
-        dict = {'dish': dish['name'], 'color': Generator.generate_color(dish['type']), 'name': dish['type'].capitalize()}
+    def generate_dish(dish: ParsedMenu):
+        dict = {'dish': dish.name, 'color': Generator.generate_color(dish.type), 'name': dish.type.capitalize()}
         return dict
 
     @staticmethod
