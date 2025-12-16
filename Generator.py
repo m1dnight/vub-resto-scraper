@@ -25,16 +25,16 @@ class Generator:
     @staticmethod
     def generate(restaurant: ParsedRestaurant):
         generated_restaurant = []
-        for day in restaurant:
-            generated_day = Generator.generate_day(day)
+        for day in restaurant.days:
+            generated_day = Generator.generate_day(day, restaurant.used_llm)
             generated_restaurant.append(generated_day)
         return generated_restaurant
 
     @staticmethod
-    def generate_day(day: ParsedDay):
+    def generate_day(day: ParsedDay, used_llm: bool):
         date_key = day.day.strftime("%Y-%m-%d")
         dishes = [Generator.generate_dish(dish) for dish in day.menu]
-        return {"date": date_key, "menus": dishes}
+        return {"date": date_key, "menus": dishes, "used_llm": used_llm}
 
     @staticmethod
     def generate_dish(dish: ParsedMenu):
