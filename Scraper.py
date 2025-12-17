@@ -169,6 +169,13 @@ class Scraper:
 
     @staticmethod
     def parse_item(item: str) -> Union[None, ParsedMenu]:
+        if item is None:
+            return
+
+        item = item.strip()
+        if len(item) < 5:
+            return None
+
         if re.match(".*restaurant.*gesloten.*", item, flags=re.IGNORECASE):
             return ParsedMenu(type= "closed", name = 'restaurant closed')
         elif Scraper.possible_item(item):
